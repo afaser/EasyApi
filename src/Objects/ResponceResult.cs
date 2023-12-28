@@ -1,4 +1,4 @@
-﻿namespace Afaser.EasyApi
+﻿namespace Afaser.EasyApi.Objects
 {
     public struct ResponceResult
     {

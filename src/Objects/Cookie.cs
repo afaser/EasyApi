@@ -8,7 +8,7 @@ using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Afaser.EasyApi
+namespace Afaser.EasyApi.Objects
 {
     public struct Cookie
     {
@@ -36,7 +36,7 @@ namespace Afaser.EasyApi
             var _sb = new StringBuilder();
 
             _sb.Append($"{Key}={Value}");
-            
+
 
             if (Expires != null)
             {
@@ -63,10 +63,10 @@ namespace Afaser.EasyApi
                 _sb.Append($"; Path={Path}");
 
             if (IsSecure == true) _sb.Append("; Secure");
-                
+
             if (IsHttpOnly == true) _sb.Append("; HttpOnly");
 
-            if(SameSite.HasValue) _sb.Append($"; {SameSite.Value}");
+            if (SameSite.HasValue) _sb.Append($"; {SameSite.Value}");
 
             return _sb.ToString();
         }
@@ -75,15 +75,15 @@ namespace Afaser.EasyApi
         {
             if (obj is Cookie _cookie)
             {
-                if(_cookie.Key != Key) return false;
-                if(_cookie.Value != Value) return false;
-                if(_cookie.Expires != Expires) return false;
-                if(_cookie.MaxAge != MaxAge) return false;
-                if(_cookie.Domain != Domain) return false;
-                if(_cookie.Path != Path) return false;
-                if(_cookie.IsHttpOnly != IsHttpOnly) return false;
-                if(_cookie.IsSecure != IsSecure) return false;
-                if(_cookie.SameSite != SameSite) return false;
+                if (_cookie.Key != Key) return false;
+                if (_cookie.Value != Value) return false;
+                if (_cookie.Expires != Expires) return false;
+                if (_cookie.MaxAge != MaxAge) return false;
+                if (_cookie.Domain != Domain) return false;
+                if (_cookie.Path != Path) return false;
+                if (_cookie.IsHttpOnly != IsHttpOnly) return false;
+                if (_cookie.IsSecure != IsSecure) return false;
+                if (_cookie.SameSite != SameSite) return false;
 
                 return true;
             }
@@ -104,8 +104,8 @@ namespace Afaser.EasyApi
     }
     public enum SameSite : byte
     {
-        None = 0, 
-        Strict = 1, 
+        None = 0,
+        Strict = 1,
         Lax = 2
     }
 }

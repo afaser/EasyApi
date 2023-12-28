@@ -1,4 +1,6 @@
-﻿namespace Afaser.EasyApi.Services
+﻿using Afaser.EasyApi.Objects;
+
+namespace Afaser.EasyApi.Services
 {
     public interface IRequestsHandler
     {

@@ -2,7 +2,7 @@
 using System.Net.Sockets;
 using System.Text;
 
-namespace Afaser.EasyApi
+namespace Afaser.EasyApi.Objects
 {
     public class Responce
     {
@@ -40,7 +40,7 @@ namespace Afaser.EasyApi
 
             foreach (var _cookie in Cookies.Values)
             {
-                if(_request.Cookies.TryGetValue(_cookie.Key, out var _requestCookie))
+                if (_request.Cookies.TryGetValue(_cookie.Key, out var _requestCookie))
                 {
                     if (_requestCookie.Equals(_cookie)) continue;
                 }

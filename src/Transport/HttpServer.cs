@@ -2,6 +2,7 @@
 using System.Net.Sockets;
 using System.Text;
 using System.Xml.Linq;
+using Afaser.EasyApi.Objects;
 
 namespace Afaser.EasyApi.Transport
 {

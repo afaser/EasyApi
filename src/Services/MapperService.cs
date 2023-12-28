@@ -1,4 +1,6 @@
 ﻿
+using Afaser.EasyApi.Objects;
+
 namespace Afaser.EasyApi.Services
 {
     public sealed class MapperService : Service, IRequestsHandler
