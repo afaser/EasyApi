@@ -127,7 +127,7 @@ namespace Afaser.EasyApi.Transport
                 var _value = new string(x.Skip(_key.Length + 2).ToArray());
                 return KeyValuePair.Create(_key, _value);
             }));
-            Dictionary<string, Cookie> _cookies;
+            Dictionary<string, Objects.Cookie> _cookies;
             if(_headers.Remove("Cookie", out var _cookiesString))
             {
                 Console.WriteLine(_cookiesString);
@@ -137,7 +137,7 @@ namespace Afaser.EasyApi.Transport
                 var _cookiesList = _cookiesStrings.Select(x =>
                 {
                     var _parts = x.Split('=');
-                    var _cookie = new Cookie()
+                    var _cookie = new Objects.Cookie()
                     {
                         Key = _parts[0],
                         Value = _parts[1]
@@ -145,9 +145,9 @@ namespace Afaser.EasyApi.Transport
                     return KeyValuePair.Create(_cookie.Key, _cookie);
                 });
 
-                _cookies = new Dictionary<string, Cookie>(_cookiesList);
+                _cookies = new Dictionary<string, Objects.Cookie>(_cookiesList);
             }
-            else _cookies = new Dictionary<string, Cookie>();
+            else _cookies = new Dictionary<string, Objects.Cookie>();
 
             return new Request()
             {
