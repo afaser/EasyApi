@@ -30,7 +30,11 @@ namespace Afaser.EasyApi.Services
             if (_handlers.TryGetValue(_key, out var _handler))
                 return await _handler(reqest, responce);
 
-            else return Task.FromResult<object>(null);
+            else
+            {
+                responce.ResponceResult = ResponceResult.NotFound;
+                return Task.FromResult<object>(new byte[0]);
+            }
         }
     }
 }

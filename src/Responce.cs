@@ -6,62 +6,22 @@ namespace Afaser.EasyApi
 {
     public class Responce
     {
-        public Socket Socket { get; internal set; }
-        public string ContentType { get; set; }
+        public Socket Socket { get; }
+        public string ContentType { get; set; } = "text/json";
         public ResponceResult ResponceResult { get; set; }
-        public IDictionary<string, string> Headers { get; internal set; } = new Dictionary<string, string>();
-        internal IDictionary<string, string> Cookies { get; } = new Dictionary<string, string>();
-        internal Request Request { get; set; }
+        public IDictionary<string, string> Headers { get; } = new Dictionary<string, string>();
+        public IReadOnlyDictionary<string, Cookie> Cookies => _cookies.AsReadOnly();
 
+        internal Request _request;
 
-        public void SetCookie(
-            string key, string value,
-            DateTime? expires = null,
-            int? maxAge = null,
-            string? domain = null,
-            string? path = "/",
-            bool secure = false,
-            bool httpOnly = false)
+        private IDictionary<string, Cookie> _cookies;
+
+        internal Responce(Request request)
         {
-            if(string.IsNullOrWhiteSpace(key))
-                throw new ArgumentNullException(nameof(key));
-            if(string.IsNullOrWhiteSpace(value))
-                throw new ArgumentNullException(nameof(value));
-
-            var _cookie = new List<string>()
-            { 
-                $"{key}={value}"
-            };
-
-            if (expires != null) 
-            {
-                if (expires.Value < DateTime.UtcNow)
-                    throw new ArgumentOutOfRangeException(nameof(expires));
-
-                var _format = "ddd, dd MMM yyyy HH:mm:ss 'GMT'";
-                var _httpTime = expires.Value.ToString(_format, CultureInfo.InvariantCulture);
-                _cookie.Add(_httpTime);
-            }
-
-            if(maxAge != null)
-            {
-                if(maxAge <= 0)
-                    throw new ArgumentOutOfRangeException(nameof(maxAge));
-
-                _cookie.Add($"Max-Age={maxAge}");
-            }
-
-            if(!string.IsNullOrWhiteSpace(domain))
-                _cookie.Add($"Domain={domain}");
-
-            if(!string.IsNullOrWhiteSpace(path))
-                _cookie.Add($"Path={path}");
-
-            if (secure) _cookie.Add("Secure");
-
-            if (httpOnly) _cookie.Add("HttpOnly");
-
-            Cookies.Add(key, string.Join(": ", _cookie));
+            _request = request;
+            Socket = _request.Socket;
+            ResponceResult = ResponceResult.Ok;
+            _cookies = new Dictionary<string, Cookie>(_request.Cookies);
         }
 
         internal async Task Send(string data) =>
@@ -78,16 +38,31 @@ namespace Afaser.EasyApi
             foreach (var _header in Headers)
                 _sb.AppendLine($"{_header.Key}: {_header.Value}");
 
-            foreach (var _cookie in Cookies)
-                _sb.AppendLine($"Set-Cookie: {_cookie}");
+            foreach (var _cookie in Cookies.Values)
+            {
+                if(_request.Cookies.TryGetValue(_cookie.Key, out var _requestCookie))
+                {
+                    if (_requestCookie.Equals(_cookie)) continue;
+                }
 
-            _sb.Append("\n\n");
+                var _str = _cookie.ToString();
+                _sb.AppendLine($"Set-Cookie: {_cookie}");
+                Console.WriteLine(_str);
+            }
+
+            _sb.Append("\n");
 
             var _bytes = Encoding.UTF8.GetBytes(_sb.ToString());
 
             await Socket.SendAsync(_bytes);
 
             await Socket.SendAsync(data);
+        }
+        public void SetCookie(Cookie cookie)
+        {
+            if (_cookies.ContainsKey(cookie.Key))
+                _cookies[cookie.Key] = cookie;
+            else _cookies.Add(cookie.Key, cookie);
         }
     }
 }

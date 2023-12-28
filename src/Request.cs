@@ -10,5 +10,6 @@ namespace Afaser.EasyApi
         public string Endpoint { get; internal set; }
         public IReadOnlyDictionary<string, string> Queue { get; internal set; } 
         public IReadOnlyDictionary<string, string> Headers { get; internal set; }
+        public IReadOnlyDictionary<string, Cookie> Cookies { get; internal set; }
     }
 }

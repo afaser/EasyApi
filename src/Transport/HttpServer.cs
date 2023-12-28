@@ -1,6 +1,7 @@
 ﻿using System.Net;
 using System.Net.Sockets;
 using System.Text;
+using System.Xml.Linq;
 
 namespace Afaser.EasyApi.Transport
 {
@@ -75,23 +76,31 @@ namespace Afaser.EasyApi.Transport
 
                 if (_request == null) return;
 
-                var _responce = new Responce()
+                var _responce = new Responce(_request)
                 {
-                    Socket = client,
-                    Request = _request,
-                    ResponceResult = ResponceResult.NotFound
+                    ResponceResult = ResponceResult.Ok
                 };
 
-                var _data = await (_reqestHandler?.Invoke(_request, _responce) ?? Task.FromResult<object>(string.Empty));
+                object _data = null;
+
+                if(_reqestHandler != null)
+                    _data = await _reqestHandler(_request, _responce);
 
                 if (_data is string _stringData)
                     await _responce.Send(_stringData);
                 else if (_data is byte[] _byteData)
                     await _responce.Send(_byteData);
+                else
+                {
+                    if(_reqestHandler == null)
+                        _responce.ResponceResult = ResponceResult.NotFound;
+
+                    await _responce.Send(new byte[0]);
+                }
 
                 client.Close();
             }
-            catch { client.Dispose(); }
+            catch (Exception ex) { Console.WriteLine(ex); client.Dispose(); }
         }
         private async Task<Request> GetRequest(Socket client)
         {
@@ -117,6 +126,27 @@ namespace Afaser.EasyApi.Transport
                 var _value = new string(x.Skip(_key.Length + 2).ToArray());
                 return KeyValuePair.Create(_key, _value);
             }));
+            Dictionary<string, Cookie> _cookies;
+            if(_headers.Remove("Cookie", out var _cookiesString))
+            {
+                Console.WriteLine(_cookiesString);
+
+                var _cookiesStrings = _cookiesString.Split(';').Select(x => x.Trim());
+
+                var _cookiesList = _cookiesStrings.Select(x =>
+                {
+                    var _parts = x.Split('=');
+                    var _cookie = new Cookie()
+                    {
+                        Key = _parts[0],
+                        Value = _parts[1]
+                    };
+                    return KeyValuePair.Create(_cookie.Key, _cookie);
+                });
+
+                _cookies = new Dictionary<string, Cookie>(_cookiesList);
+            }
+            else _cookies = new Dictionary<string, Cookie>();
 
             return new Request()
             {
@@ -124,7 +154,8 @@ namespace Afaser.EasyApi.Transport
                 Method = _method,
                 Endpoint = _ep,
                 Queue = _queue,
-                Headers = _headers
+                Headers = _headers,
+                Cookies = _cookies
             };
 
         }
