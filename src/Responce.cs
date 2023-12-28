@@ -47,7 +47,6 @@ namespace Afaser.EasyApi
 
                 var _str = _cookie.ToString();
                 _sb.AppendLine($"Set-Cookie: {_cookie}");
-                Console.WriteLine(_str);
             }
 
             _sb.Append("\n");
